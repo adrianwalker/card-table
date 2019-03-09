@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <charset>UTF-8</charset>
+      <Pattern>%d{"dd-MM-yyyy HH:mm:ss,SSS"} %-5level [%logger - %M] - %msg%n</Pattern>
+    </encoder>
+  </appender>
+
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>cardtable.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>cardtable_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+      <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <maxFileSize>10MB</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+
+    <encoder>
+      <charset>UTF-8</charset>
+      <pattern>%d{"dd-MM-yyyy HH:mm:ss,SSS"} %-5level [%logger - %M] - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="${logging.level}">
+    <appender-ref ref="STDOUT" />
+    <appender-ref ref="FILE"/>
+  </root>
+</configuration>

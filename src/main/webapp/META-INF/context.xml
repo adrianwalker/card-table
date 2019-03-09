@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context antiJARLocking="true" path="/cardtable">
+
+  <Resource 
+    name="${jdbc.name}" 
+    auth="${jdbc.auth}"
+    type="${jdbc.type}" 
+    driverClassName="${jdbc.driverClassName}"
+    url="${jdbc.url}"
+    username="${jdbc.username}" 
+    password="${jdbc.password}"
+    initialSize="${jdbc.initialSize}"
+    maxActive="${jdbc.maxActive}"
+    maxTotal="${jdbc.maxTotal}"/>
+</Context>

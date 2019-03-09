@@ -1,0 +1,52 @@
+body {
+  margin-top: 0px;
+  margin-left: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+}
+
+#container {
+  overflow: hidden;
+}
+
+#side-nav {
+  height: 100vh;
+  width: 70px;
+  position: fixed;
+  z-index: 1000000;
+  top: 0;
+  left: 0;
+  background-color:  rgba(0, 0, 0, 0.75);
+  text-align: center;
+}
+
+.side-nav-icon {
+  width: 50px;
+}
+
+#game-area {
+  height: 100vh;
+  width: 100vw;
+  background-color: #076324;
+  transform-style: preserve-3d;
+}
+
+.card {
+  width: 75px;
+}
+
+#selection-box {
+  border: 1px dashed whitesmoke;
+  position: absolute;
+  visibility: hidden;
+  z-index: 999999;
+}
+
+#pocket-area {
+  border-top: 2px solid #005314;
+  position: fixed;
+  width: 100vw;
+  height: 150px;
+  bottom: 0%;
+  overflow: hidden;
+}
