@@ -59,7 +59,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
-        <version>2.6</version>
+        <version>3.2.2</version>
         <configuration>
           <webResources>
             <resource>
@@ -99,13 +99,13 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.9.7</version>
+      <version>2.9.8</version>
     </dependency>
     
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.25</version>
+      <version>1.7.26</version>
     </dependency>
 
     <dependency>
@@ -119,12 +119,5 @@
       <artifactId>postgresql</artifactId>
       <version>9.1-901-1.jdbc4</version>
     </dependency>
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
-      <scope>test</scope>
-    </dependency>  
   </dependencies>
 </project>
