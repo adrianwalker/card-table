@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 public final class WebSocketEndpoint {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketEndpoint.class);
+  private static final String BROWSER_DISCONNECT_MESSAGE = "Software caused connection abort";
   private static final UUID SYSTEM_SENDER = UUID.fromString("99999999-9999-9999-9999-999999999999");
   private static final Map<Session, UUID> SESSION_TABLE_ID = new HashMap<>();
   private static final Map<UUID, Set<Session>> TABLE_ID_SESSIONS = new HashMap<>();
@@ -71,7 +72,10 @@ public final class WebSocketEndpoint {
   @OnError
   public void onError(final Throwable t) {
 
-    LOGGER.error("WebSocket error", t);
+    boolean browserDisconnect = t.getMessage().contains(BROWSER_DISCONNECT_MESSAGE);
+    if (!browserDisconnect) {
+      LOGGER.error("WebSocket error", t);
+    }
   }
 
   @OnMessage
