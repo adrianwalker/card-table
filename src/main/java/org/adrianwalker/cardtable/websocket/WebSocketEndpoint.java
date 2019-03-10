@@ -1,7 +1,11 @@
 package org.adrianwalker.cardtable.websocket;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -19,7 +23,6 @@ import static org.adrianwalker.cardtable.message.Message.Modifier.PRIVATE;
 import static org.adrianwalker.cardtable.message.Message.Modifier.PUBLIC;
 import org.adrianwalker.cardtable.message.Move;
 import org.adrianwalker.cardtable.message.Shuffle;
-import org.adrianwalker.cardtable.message.Table;
 import org.adrianwalker.cardtable.message.Cards;
 import static org.adrianwalker.cardtable.message.Message.Type.CARDS;
 import static org.adrianwalker.cardtable.message.Message.Type.DECK;
@@ -28,7 +31,6 @@ import static org.adrianwalker.cardtable.message.Message.Type.ERROR;
 import static org.adrianwalker.cardtable.message.Message.Type.HIDE;
 import static org.adrianwalker.cardtable.message.Message.Type.REMOVE;
 import static org.adrianwalker.cardtable.message.Message.Type.SHUFFLE;
-import static org.adrianwalker.cardtable.message.Message.Type.TABLE;
 import static org.adrianwalker.cardtable.message.Message.Type.TURN;
 import org.adrianwalker.cardtable.message.Turn;
 import org.adrianwalker.cardtable.service.Service;
@@ -40,6 +42,8 @@ public final class WebSocketEndpoint {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketEndpoint.class);
   private static final UUID SYSTEM_SENDER = UUID.fromString("99999999-9999-9999-9999-999999999999");
+  private static final Map<Session, UUID> SESSION_TABLE_ID = new HashMap<>();
+  private static final Map<UUID, Set<Session>> TABLE_ID_SESSIONS = new HashMap<>();
 
   private final Service service;
 
@@ -60,6 +64,14 @@ public final class WebSocketEndpoint {
   public void onClose(final Session session) {
 
     LOGGER.debug("session = {}", session);
+
+    removeSession(session);
+  }
+
+  @OnError
+  public void onError(final Throwable t) {
+
+    LOGGER.error("WebSocket error", t);
   }
 
   @OnMessage
@@ -77,12 +89,8 @@ public final class WebSocketEndpoint {
 
     switch (message.getType()) {
 
-      case TABLE:
-        responseJson = onTable(message);
-        break;
-
       case CARDS:
-        responseJson = onCards(message);
+        responseJson = onCards(session, message);
         break;
 
       case DECK:
@@ -229,37 +237,56 @@ public final class WebSocketEndpoint {
       service.createDeck(message.getDataAs(Deck.class), message.getSender())).toJson();
   }
 
-  private String onCards(final Message message) throws Exception {
+  private String onCards(final Session session, final Message message) throws Exception {
+
+    Cards data = message.getDataAs(Cards.class);
+    UUID cardTableId = data.getCardTableId();
+
+    addSession(session, cardTableId);
 
     return new Message(
       message.getSender(),
       CARDS,
       PUBLIC,
-      service.getCardTableCards(message.getDataAs(Cards.class), message.getSender())).toJson();
+      service.getCardTableCards(data, message.getSender())).toJson();
   }
 
-  private String onTable(final Message message) throws Exception {
+  private void addSession(final Session session, final UUID cardTableId) {
 
-    return new Message(
-      message.getSender(),
-      TABLE,
-      PUBLIC,
-      service.getCardTable(message.getDataAs(Table.class))).toJson();
+    SESSION_TABLE_ID.put(session, cardTableId);
+
+    if (!TABLE_ID_SESSIONS.containsKey(cardTableId)) {
+      TABLE_ID_SESSIONS.put(cardTableId, new HashSet<>());
+    }
+
+    TABLE_ID_SESSIONS.get(cardTableId).add(session);
+
+    LOGGER.info("SESSION_TABLE_ID.size() = {}, TABLE_ID_SESSIONS.size() = {}",
+      SESSION_TABLE_ID.size(), TABLE_ID_SESSIONS.size());
   }
 
-  @OnError
-  public void onError(final Throwable t) {
+  private void removeSession(final Session session) {
 
-    LOGGER.error("WebSocket error", t);
+    UUID cardTableId = SESSION_TABLE_ID.remove(session);
+    Set<Session> sessions = TABLE_ID_SESSIONS.get(cardTableId);
+
+    sessions.remove(session);
+
+    if (sessions.isEmpty()) {
+      TABLE_ID_SESSIONS.remove(cardTableId);
+    }
+
+    LOGGER.info("SESSION_TABLE_ID.size() = {}, TABLE_ID_SESSIONS.size() = {}",
+      SESSION_TABLE_ID.size(), TABLE_ID_SESSIONS.size());
   }
 
-  private static void broadcast(final Session session, final String json) {
+  private void broadcast(final Session senderSession, final String json) {
 
-    LOGGER.debug("session = {}, json = {}", session, json);
+    LOGGER.debug("senderSession = {}, json = {}", senderSession, json);
 
-    session.getOpenSessions()
-      .stream()
-      .filter(openSession -> !openSession.equals(session))
+    TABLE_ID_SESSIONS.get(SESSION_TABLE_ID.get(senderSession)).stream()
+      .filter(session -> session.isOpen())
+      .filter(openSession -> !openSession.equals(senderSession))
       .forEach(peerSession -> {
         try {
           peerSession.getBasicRemote().sendText(json);

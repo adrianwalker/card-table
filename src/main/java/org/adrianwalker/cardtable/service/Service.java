@@ -11,7 +11,6 @@ import org.adrianwalker.cardtable.message.Deck;
 import org.adrianwalker.cardtable.message.Move;
 import org.adrianwalker.cardtable.message.Remove;
 import org.adrianwalker.cardtable.message.Shuffle;
-import org.adrianwalker.cardtable.message.Table;
 import org.adrianwalker.cardtable.message.Cards;
 import org.adrianwalker.cardtable.message.Turn;
 import org.slf4j.Logger;
@@ -36,13 +35,6 @@ public final class Service {
 
     return dataAccess.readCardTable(
       dataAccess.createCardTable());
-  }
-
-  public CardTable getCardTable(final Table table) throws Exception {
-
-    LOGGER.debug("table = {}", table);
-
-    return dataAccess.readCardTable(table.getCardTableId());
   }
 
   public List<CardTableCard> createDeck(final Deck deck, final UUID playerId) throws Exception {

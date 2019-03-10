@@ -59,9 +59,6 @@ class Type {
   static get SHUFFLE() {
     return "SHUFFLE";
   }
-  static get TABLE() {
-    return "TABLE";
-  }
   static get TURN() {
     return "TURN";
   }

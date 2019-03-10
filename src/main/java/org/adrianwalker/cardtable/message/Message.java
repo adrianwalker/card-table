@@ -14,8 +14,7 @@ public final class Message implements Serializable {
   }
 
   public enum Type {
-    CARDS, DECK, DRAG, HIDE, MOVE, REMOVE, SHUFFLE, TABLE, TURN,
-    ERROR;
+    CARDS, DECK, DRAG, HIDE, MOVE, REMOVE, SHUFFLE, TURN, ERROR;
   }
 
   private static final String SENDER_GROUP = "sender";
