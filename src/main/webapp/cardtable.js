@@ -28,71 +28,40 @@ window.addEventListener("load", function () {
   new CardTableApp(getPlayerId(), getCardTableId()).init(getUrl());
 });
 
-class Modifier {
-  static get PUBLIC() {
-    return "PUBLIC";
-  }
-  static get PRIVATE() {
-    return "PRIVATE";
-  }
-}
+var Modifier = {
+  PUBLIC: "PUBLIC",
+  PRIVATE: "PRIVATE"
+};
 
-class Type {
-  static get CARDS() {
-    return "CARDS";
-  }
-  static get DECK() {
-    return "DECK";
-  }
-  static get DRAG() {
-    return "DRAG";
-  }
-  static get HIDE() {
-    return "HIDE";
-  }
-  static get MOVE() {
-    return "MOVE";
-  }
-  static get REMOVE() {
-    return "REMOVE";
-  }
-  static get SHUFFLE() {
-    return "SHUFFLE";
-  }
-  static get TURN() {
-    return "TURN";
-  }
-  static get ERROR() {
-    return "ERROR";
-  }
-}
+var Type = {
+  CARDS: "CARDS",
+  DECK: "DECK",
+  DRAG: "DRAG",
+  HIDE: "HIDE",
+  MOVE: "MOVE",
+  REMOVE: "REMOVE",
+  SHUFFLE: "SHUFFLE",
+  TURN: "TURN",
+  ERROR: "ERROR"
+};
 
-class CssClass {
-  static get CLICKED() {
-    return "clicked";
-  }
-  static get SELECTED() {
-    return "selected";
-  }
-  static get DRAGGED() {
-    return "dragged";
-  }
-}
+var CssClass = {
+  CLICKED: "clicked",
+  SELECTED: "selected",
+  DRAGGED: "dragged"
+};
 
-class CardTableApp {
+function CardTableApp(playerId, cardTableId) {
 
-  constructor(playerId, cardTableId) {
+  this.playerId = playerId;
+  this.cardTableId = cardTableId;
+  this.zPositionMax = 0;
 
-    this.playerId = playerId;
-    this.cardTableId = cardTableId;
-    this.zPositionMax = 0;
+  this.webSocket = null;
+  this.gameArea = null;
+  this.pocketArea = null;
 
-    this.webSocket = null;
-    this.gameArea = null;
-    this.pocketArea = null;
-  }
-
-  init(url) {
+  this.init = function (url) {
 
     this.webSocket = new WebSocket(url);
 
@@ -107,9 +76,9 @@ class CardTableApp {
       self.pocketArea = self.initPocketArea();
       self.sendCards();
     };
-  }
+  };
 
-  initGameArea() {
+  this.initGameArea = function () {
 
     var icons = document.getElementsByClassName("side-nav-icon");
     for (var i = 0; i < icons.length; i++) {
@@ -139,14 +108,14 @@ class CardTableApp {
     });
 
     return gameArea;
-  }
+  };
 
-  initPocketArea() {
+  this.initPocketArea = function () {
 
     return document.getElementById("pocket-area");
-  }
+  };
 
-  messageListener(event) {
+  this.messageListener = function (event) {
 
     var message = JSON.parse(event.data);
 
@@ -231,21 +200,21 @@ class CardTableApp {
 
         break
     }
-  }
+  };
 
-  iconDragStartListener(event) {
+  this.iconDragStartListener = function (event) {
 
     var packId = event.target.attributes["data-packId"].value;
     event.dataTransfer.setData("Text", packId);
-  }
+  };
 
-  gameAreaDragOverListener(event) {
+  this.gameAreaDragOverListener = function (event) {
 
     event.preventDefault();
     event.stopPropagation();
-  }
+  };
 
-  gameAreaDropListener(event) {
+  this.gameAreaDropListener = function (event) {
 
     var packId = event.dataTransfer.getData("Text");
 
@@ -253,9 +222,9 @@ class CardTableApp {
 
     event.preventDefault();
     event.stopPropagation();
-  }
+  };
 
-  gameAreaMouseDownListener(event) {
+  this.gameAreaMouseDownListener = function (event) {
 
     this.removeClass(CssClass.CLICKED);
     this.removeClass(CssClass.DRAGGED);
@@ -268,9 +237,9 @@ class CardTableApp {
 
     event.preventDefault();
     event.stopPropagation();
-  }
+  };
 
-  gameAreaMouseMoveListener(event) {
+  this.gameAreaMouseMoveListener = function (event) {
 
     this.removeClass(CssClass.CLICKED);
 
@@ -306,9 +275,9 @@ class CardTableApp {
 
     event.preventDefault();
     event.stopPropagation();
-  }
+  };
 
-  gameAreaMouseUpListener(event) {
+  this.gameAreaMouseUpListener = function (event) {
 
     this.resizeSelectionBox(this.pageX(event), this.pageY(event), this.pageX(event), this.pageY(event), true);
 
@@ -327,9 +296,9 @@ class CardTableApp {
 
     event.preventDefault();
     event.stopPropagation();
-  }
+  };
 
-  cardMouseDownListener(event) {
+  this.cardMouseDownListener = function (event) {
 
     var card = event.target;
     card.classList.add(CssClass.CLICKED);
@@ -342,9 +311,9 @@ class CardTableApp {
 
     event.preventDefault();
     event.stopPropagation();
-  }
+  };
 
-  cardMouseUpListener(event) {
+  this.cardMouseUpListener = function (event) {
 
     var clickedCards = document.getElementsByClassName(CssClass.CLICKED);
     var clicked = clickedCards.length > 0;
@@ -393,17 +362,17 @@ class CardTableApp {
       event.preventDefault();
       event.stopPropagation();
     }
-  }
+  };
 
-  removeClass(className) {
+  this.removeClass = function (className) {
 
     var elements = document.getElementsByClassName(className);
     while (elements.length > 0) {
       elements[0].classList.remove(className);
     }
-  }
+  };
 
-  cardIds(cards) {
+  this.cardIds = function (cards) {
 
     var cardIds = [];
 
@@ -412,9 +381,9 @@ class CardTableApp {
     }
 
     return cardIds;
-  }
+  };
 
-  createCard(element) {
+  this.createCard = function (element) {
 
     var card = document.createElement("img");
     card.id = element.id;
@@ -433,9 +402,9 @@ class CardTableApp {
     this.positionCard(card, element.xposition, element.yposition, element.zposition);
 
     return card;
-  }
+  };
 
-  positionCard(card, xPosition, yPosition, zPosition) {
+  this.positionCard = function (card, xPosition, yPosition, zPosition) {
 
     if (this.zPositionMax < zPosition) {
       this.zPositionMax = zPosition;
@@ -445,9 +414,9 @@ class CardTableApp {
     card.style.left = xPosition + "px";
     card.style.top = yPosition + "px";
     card.style.zIndex = zPosition;
-  }
+  };
 
-  turnCard(card, element) {
+  this.turnCard = function (card, element) {
 
     card.faceDown = element.faceDown;
 
@@ -460,30 +429,30 @@ class CardTableApp {
 
     var cardPosition = card.getBoundingClientRect();
     this.positionCard(card, cardPosition.left, cardPosition.top, ++this.zPositionMax);
-  }
+  };
 
-  showCard(card) {
+  this.showCard = function (card) {
     card.style.display = "block";
-  }
+  };
 
-  hideCard(card) {
+  this.hideCard = function (card) {
     card.style.display = "none";
-  }
+  };
 
-  dragCards(cards, xPosition, yPosition) {
+  this.dragCards = function (cards, xPosition, yPosition) {
 
     for (var i = 0; i < cards.length; i++) {
       this.positionCard(cards[i], xPosition, yPosition, ++this.zPositionMax);
       this.showCard(cards[i]);
     }
-  }
+  };
 
-  removeCard(card) {
+  this.removeCard = function (card) {
 
     this.gameArea.removeChild(card);
-  }
+  };
 
-  resizeSelectionBox(x1, y1, x2, y2, hidden) {
+  this.resizeSelectionBox = function (x1, y1, x2, y2, hidden) {
 
     var selectionBox = document.getElementById("selection-box");
     if (hidden) {
@@ -497,13 +466,13 @@ class CardTableApp {
     selectionBox.style.top = Math.min(y1, y2) + "px";
     selectionBox.style.width = Math.abs(x2 - x1) + "px";
     selectionBox.style.height = Math.abs(y2 - y1) + "px";
-  }
+  };
 
-  send(message) {
+  this.send = function (message) {
     this.webSocket.send(JSON.stringify(message));
-  }
+  };
 
-  sendShuffle(cards, xPosition, yPosition) {
+  this.sendShuffle = function (cards, xPosition, yPosition) {
 
     var modifier = this.inPocketArea(cards[0]) ? Modifier.PRIVATE : Modifier.PUBLIC;
 
@@ -517,9 +486,9 @@ class CardTableApp {
         yPosition: yPosition,
         zPosition: ++this.zPositionMax
       }});
-  }
+  };
 
-  sendTurn(card) {
+  this.sendTurn = function (card) {
 
     var modifier = this.inPocketArea(card) ? Modifier.PRIVATE : Modifier.PUBLIC;
 
@@ -531,9 +500,9 @@ class CardTableApp {
         cardIds: [card.id],
         faceDown: !card.faceDown
       }});
-  }
+  };
 
-  sendRemove(cards) {
+  this.sendRemove = function (cards) {
 
     this.send({
       sender: this.playerId,
@@ -542,9 +511,9 @@ class CardTableApp {
       data: {
         cardIds: this.cardIds(cards)
       }});
-  }
+  };
 
-  sendMove(cards, xPosition, yPosition) {
+  this.sendMove = function (cards, xPosition, yPosition) {
 
     var modifier = this.inPocketArea(cards[0]) ? Modifier.PRIVATE : Modifier.PUBLIC;
 
@@ -558,9 +527,9 @@ class CardTableApp {
         yPosition: yPosition,
         zPosition: ++this.zPositionMax
       }});
-  }
+  };
 
-  sendCards() {
+  this.sendCards = function () {
 
     this.send({
       sender: this.playerId,
@@ -569,9 +538,9 @@ class CardTableApp {
       data: {
         cardTableId: this.cardTableId
       }});
-  }
+  };
 
-  sendDeck(packId, xPosition, yPosition) {
+  this.sendDeck = function (packId, xPosition, yPosition) {
 
     this.send({
       sender: this.playerId,
@@ -583,9 +552,9 @@ class CardTableApp {
         xPosition: xPosition,
         yPosition: yPosition
       }});
-  }
+  };
 
-  sendDrag(cards, xPosition, yPosition) {
+  this.sendDrag = function (cards, xPosition, yPosition) {
 
     var modifier = this.inPocketArea(cards[0]) ? Modifier.PRIVATE : Modifier.PUBLIC;
 
@@ -598,18 +567,18 @@ class CardTableApp {
         xPosition: xPosition,
         yPosition: yPosition
       }});
-  }
+  };
 
-  inPocketArea(card) {
+  this.inPocketArea = function (card) {
 
     var cardPosition = card.getBoundingClientRect();
     var midY = cardPosition.top + cardPosition.height / 2;
     var pocketAreaPosition = this.pocketArea.getBoundingClientRect();
 
     return midY > pocketAreaPosition.top;
-  }
+  };
 
-  cardOffTable(card) {
+  this.cardOffTable = function (card) {
 
     var cardPosition = card.getBoundingClientRect();
     var midX = cardPosition.left + cardPosition.width / 2;
@@ -617,29 +586,29 @@ class CardTableApp {
     var gameAreaPosition = this.gameArea.getBoundingClientRect();
 
     return  midX < 0 || midX > gameAreaPosition.width || midY < 0 || midY > gameAreaPosition.height;
-  }
+  };
 
-  cardSelected(card, minX, maxX, minY, maxY) {
+  this.cardSelected = function (card, minX, maxX, minY, maxY) {
 
     var cardPosition = card.getBoundingClientRect();
     var midX = cardPosition.left + card.width / 2;
     var midY = cardPosition.top + card.height / 2;
 
     return midX > minX && midX < maxX && midY > minY && midY < maxY;
-  }
+  };
 
-  pageX(event) {
+  this.pageX = function (event) {
 
     return event.pageX;
-  }
+  };
 
-  pageY(event) {
+  this.pageY = function (event) {
 
     return event.pageY;
-  }
+  };
 
-  buttons(event) {
+  this.buttons = function (event) {
 
     return event.buttons;
-  }
+  };
 }
