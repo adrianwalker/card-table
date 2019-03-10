@@ -55,6 +55,10 @@ ALTER TABLE card_table_card ADD CONSTRAINT card_table_card_pkey PRIMARY KEY (id)
 ALTER TABLE card_table_card ADD CONSTRAINT card_table_card_card_table_id_fkey FOREIGN KEY (card_table_id) REFERENCES card_table(id);
 ALTER TABLE card_table_card ADD CONSTRAINT card_table_card_card_id_fkey FOREIGN KEY (card_id) REFERENCES card(id);
 ALTER TABLE card_table_card ADD CONSTRAINT card_table_card_pack_id_fkey FOREIGN KEY (pack_id) REFERENCES pack(id);
+
+CREATE INDEX card_table_card_card_table_id_idx ON card_table_card USING btree (card_table_id);
+CREATE INDEX card_table_card_card_id_idx ON card_table_card USING btree (card_id);
+CREATE INDEX card_table_card_pack_id_idx ON card_table_card USING btree (pack_id);
 CREATE INDEX card_table_card_z_position_idx ON card_table_card USING btree (z_position);
 
 -- Standard 52 card deck
